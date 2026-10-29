@@ -15,6 +15,7 @@ import shutil
 import struct
 import tempfile
 import zlib
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 BRAND = ROOT / 'brand/bitpolito'
@@ -165,7 +166,16 @@ def validate(root):
             if w != round(sw * 3) or h != round(sh * 3):
                 raise ValueError(f'{asset["id"]}: export a PNG at 3× its intended slide size')
     for path in (root / 'sources').glob('*.svg'):
-        text = path.read_text().lower()
+        source = path.read_bytes()
+        if len(source) > 16 * 1024 * 1024:
+            raise ValueError(f'{path.name}: SVG original exceeds 16 MiB')
+        try:
+            svg = ET.fromstring(source)
+        except ET.ParseError as error:
+            raise ValueError(f'{path.name}: incomplete or invalid SVG; export it again') from error
+        if svg.tag not in ('svg', '{http://www.w3.org/2000/svg}svg'):
+            raise ValueError(f'{path.name}: expected an SVG original')
+        text = source.decode('utf-8').lower()
         if any(x in text for x in ('<script', '<foreignobject', '<!entity', 'javascript:', 'http://', 'https://')):
             # SVG namespace declarations are metadata, not external resources.
             cleaned = re.sub(r'xmlns(?::\w+)?=[\"\']https?://[^\"\']+[\"\']', '', text)

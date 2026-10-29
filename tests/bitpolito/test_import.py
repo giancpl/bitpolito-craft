@@ -45,6 +45,13 @@ class BrandImportTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'incomplete or invalid PNG'):
                 brand.import_manual(source,self.target)
             self.assertEqual(before,brand.hashes(self.target))
+    def test_truncated_svg_preserves_entire_package(self):
+        source=self.root/'broken-svg';shutil.copytree(self.target,source)
+        svg=source/'sources/bull.svg';svg.write_bytes(svg.read_bytes()[:200])
+        before=brand.hashes(self.target)
+        with self.assertRaisesRegex(ValueError,'incomplete or invalid SVG'):
+            brand.import_manual(source,self.target)
+        self.assertEqual(before,brand.hashes(self.target))
     def test_missing_node_mappings_fail_before_network(self):
         class Never:
             def get(self,*args): self.fail('Unexpected network request')
