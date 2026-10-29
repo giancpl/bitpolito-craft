@@ -121,7 +121,8 @@ and real browser tests. The successful `main` build is retained as an artifact f
 source. An outdated run cannot overwrite a newer main deployment.
 
 Run `python3 scripts/bitpolito/configure-repository.py` after successful validation
-on the current main. It enables auto-merge, protects main with `validation` and
+on the current main. It resolves the fork from `origin` (or `GITHUB_REPOSITORY`)
+and refuses to alter the original upstream repository. It enables auto-merge, protects main with `validation` and
 `design-review`, prevents force pushes and deletion, and configures Pages.
 Set repository variable `BITPOLITO_ENABLED=true` to allow production deployment.
 
