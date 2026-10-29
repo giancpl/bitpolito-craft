@@ -35,6 +35,16 @@ class BrandImportTests(unittest.TestCase):
         before=(self.target/'runtime/bull.png').read_bytes()
         with self.assertRaises(ValueError): brand.import_manual(source,self.target)
         self.assertEqual(before,(self.target/'runtime/bull.png').read_bytes())
+    def test_truncated_or_corrupted_png_preserves_entire_package(self):
+        original=(self.target/'runtime/bull.png').read_bytes()
+        corrupted=bytearray(original);corrupted[29]^=1
+        before=brand.hashes(self.target)
+        for index,data in enumerate((original[:24],original[:-12],bytes(corrupted))):
+            source=self.root/f'broken-{index}';shutil.copytree(self.target,source)
+            (source/'runtime/bull.png').write_bytes(data)
+            with self.assertRaisesRegex(ValueError,'incomplete or invalid PNG'):
+                brand.import_manual(source,self.target)
+            self.assertEqual(before,brand.hashes(self.target))
     def test_missing_node_mappings_fail_before_network(self):
         class Never:
             def get(self,*args): self.fail('Unexpected network request')

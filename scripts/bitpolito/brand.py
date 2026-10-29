@@ -14,6 +14,7 @@ import re
 import shutil
 import struct
 import tempfile
+import zlib
 
 ROOT = Path(__file__).resolve().parents[2]
 BRAND = ROOT / 'brand/bitpolito'
@@ -62,6 +63,60 @@ def color(value):
         raise ValueError(f'Invalid color: {value!r}')
 
 
+def png_size(data, asset_id):
+    """Check complete PNG chunks and scanline data before accepting an export."""
+    def fail(reason):
+        raise ValueError(f'{asset_id}: incomplete or invalid PNG ({reason}); export it again')
+    if len(data) > 16 * 1024 * 1024 or data[:8] != b'\x89PNG\r\n\x1a\n':
+        fail('expected a PNG under 16 MiB')
+    offset, header, compressed = 8, None, []
+    ended = False
+    while offset + 12 <= len(data):
+        length = struct.unpack_from('>I', data, offset)[0]
+        end = offset + 12 + length
+        if end > len(data): fail('truncated chunk')
+        kind, payload = data[offset + 4:offset + 8], data[offset + 8:end - 4]
+        checksum = struct.unpack_from('>I', data, end - 4)[0]
+        if zlib.crc32(kind + payload) != checksum: fail('chunk checksum mismatch')
+        if header is None:
+            if kind != b'IHDR' or length != 13: fail('missing image header')
+            header = struct.unpack('>IIBBBBB', payload)
+        elif kind == b'IHDR': fail('duplicate image header')
+        if kind == b'IDAT': compressed.append(payload)
+        offset = end
+        if kind == b'IEND':
+            if length or offset != len(data): fail('invalid image end')
+            ended = True
+            break
+    if not ended or not compressed or header is None: fail('missing image data or end')
+    w, h, depth, color_type, compression, filtering, interlace = header
+    allowed = {0: (1, 2, 4, 8, 16), 2: (8, 16), 3: (1, 2, 4, 8), 4: (8, 16), 6: (8, 16)}
+    if not 0 < w <= 8192 or not 0 < h <= 8192: fail('invalid or oversized dimensions')
+    if depth not in allowed.get(color_type, ()) or compression or filtering or interlace not in (0, 1):
+        fail('unsupported image header')
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[color_type]
+    passes = [(0, 0, 1, 1)] if not interlace else [(0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4), (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2)]
+    rows = []
+    for x, y, dx, dy in passes:
+        pw, ph = max(0, (w - x + dx - 1) // dx), max(0, (h - y + dy - 1) // dy)
+        if pw and ph: rows.append((1 + (pw * channels * depth + 7) // 8, ph))
+    expected = sum(size * count for size, count in rows)
+    if expected > 128 * 1024 * 1024: fail('decoded image exceeds 128 MiB')
+    try:
+        stream = zlib.decompressobj()
+        raw = stream.decompress(b''.join(compressed), expected + 1)
+        if len(raw) != expected or not stream.eof or stream.unused_data or stream.unconsumed_tail:
+            fail('incomplete scanline data')
+    except zlib.error as error:
+        fail(str(error))
+    offset = 0
+    for size, count in rows:
+        for _ in range(count):
+            if raw[offset] > 4: fail('invalid scanline filter')
+            offset += size
+    return w, h
+
+
 def validate(root):
     config, pack, assets = read(root, 'config.json'), read(root, 'templates.json'), read(root, 'assets.json')['assets']
     if config['schemaVersion'] != 1 or pack['schemaVersion'] != 1 or config['font'] != 'Inter':
@@ -104,11 +159,7 @@ def validate(root):
         if asset['file'] != f'runtime/{asset["id"]}.png':
             raise ValueError('Runtime paths must match their stable asset IDs')
         data = inside(root, asset['file']).read_bytes()
-        if len(data) > 16 * 1024 * 1024 or data[:8] != b'\x89PNG\r\n\x1a\n':
-            raise ValueError(f'{asset["id"]}: expected a PNG under 16 MiB')
-        w, h = struct.unpack('>II', data[16:24])
-        if not 0 < w <= 8192 or not 0 < h <= 8192:
-            raise ValueError('Invalid or oversized runtime image')
+        w, h = png_size(data, asset['id'])
         if 'slideSize' in asset:
             sw, sh = asset['slideSize']
             if w != round(sw * 3) or h != round(sh * 3):

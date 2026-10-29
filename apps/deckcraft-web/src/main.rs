@@ -13,8 +13,8 @@
 //! - dropped files are read asynchronously by `web::WebShell` and delivered through the inbox;
 //! - preferences are not persisted.
 //!
-//! URL query flags: `?webgl` forces the WebGL2 backend instead of WebGPU; `?blank` starts with an
-//! empty presentation instead of the sample deck; `?show` starts the slide show.
+//! New sessions restore local drafts or create the configured BitPolito starter.
+//! URL query flags: `?webgl` forces WebGL2 instead of WebGPU; `?show` starts the slide show.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 #![forbid(unsafe_code)]
 

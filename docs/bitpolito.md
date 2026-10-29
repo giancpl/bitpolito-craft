@@ -42,7 +42,8 @@ the official bull SVG, which the browser can render directly.
 3. Record the original file version/node IDs in provenance, retain all required
    license texts, bump `brandVersion`, and update ATTRIBUTION.md for added assets.
 4. Run `python3 scripts/bitpolito/brand.py import-manual /absolute/export-package`.
-   The entire package is validated before an atomic directory swap. Invalid input
+   The entire package, including PNG checksums and complete image data, is validated
+   before an atomic directory swap. Invalid input
    preserves the previous package. Reimporting identical exports produces no diff.
 5. Build and inspect previews, then run the visual reference updater locally only:
    `python3 scripts/bitpolito/visual-check.py --update`. Review the images under
