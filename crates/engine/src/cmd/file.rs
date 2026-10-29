@@ -89,14 +89,20 @@ fn slide_size(p: &Value) -> deckcraft_geom::Size {
 }
 
 fn templates(_s: &mut Session, _p: &Value) -> Result<Value> {
-    Ok(json!({
+    let mut result = json!({
         "templates": crate::templates::starters().iter().map(|t| json!({
             "name": t.name,
             "summary": t.summary,
             "theme": t.theme,
             "slides": t.slides.len(),
         })).collect::<Vec<_>>(),
-    }))
+    });
+    if let Some(list) = result["templates"].as_array_mut() {
+        for t in crate::bitpolito::starters() {
+            list.push(json!({"id":t.id,"name":t.name,"summary":t.summary,"theme":"BitPolito","slides":t.layouts.len()}));
+        }
+    }
+    Ok(result)
 }
 
 fn new(s: &mut Session, p: &Value) -> Result<Value> {
@@ -110,8 +116,8 @@ fn new(s: &mut Session, p: &Value) -> Result<Value> {
     }
     let size = slide_size(p);
     let (doc, template_name) = if let Some(name) = template {
-        let doc = crate::templates::build(name, size)?;
-        let chosen = crate::templates::find(name).map(|t| t.name);
+        let doc = if crate::bitpolito::find(name).is_some() { crate::bitpolito::build(name, size)? } else { crate::templates::build(name, size)? };
+        let chosen = crate::templates::find(name).map(|t| t.name.to_string()).or_else(|| crate::bitpolito::find(name).map(|t| t.id));
         (doc, chosen)
     } else {
         let theme = theme_name.and_then(theme_named).unwrap_or_default();

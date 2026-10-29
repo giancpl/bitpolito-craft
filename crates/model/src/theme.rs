@@ -251,6 +251,7 @@ pub fn builtin_themes() -> Vec<Theme> {
             "Roboto",
             "Roboto",
         ),
+        crate::bitpolito::theme(),
     ]
 }
 

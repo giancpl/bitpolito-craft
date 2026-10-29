@@ -7,6 +7,7 @@
 #![forbid(unsafe_code)]
 
 pub mod backstage;
+mod bitpolito;
 pub mod canvas;
 pub mod capture;
 pub mod control;

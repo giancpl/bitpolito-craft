@@ -9,6 +9,7 @@
 
 pub mod anim;
 pub mod bidi;
+pub mod bitpolito;
 pub mod chart;
 pub mod defaults;
 pub mod edit;

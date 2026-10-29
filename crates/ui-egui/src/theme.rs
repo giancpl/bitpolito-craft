@@ -69,7 +69,7 @@ impl Tokens {
             hover: Color32::from_rgb(0xEB, 0xEB, 0xEB),
             pressed: Color32::from_rgb(0xDE, 0xDE, 0xDE),
             selected: Color32::from_rgb(0xE6, 0xE6, 0xE6),
-            accent: Color32::from_rgb(0xD9, 0x5A, 0x1A),
+            accent: brand_accent(false),
             accent_text: Color32::WHITE,
             contextual: Color32::from_rgb(0xC2, 0x4E, 0x14),
             selection: Color32::from_rgb(0x7A, 0x7A, 0x7A),
@@ -101,7 +101,7 @@ impl Tokens {
             hover: Color32::from_rgb(0x40, 0x40, 0x40),
             pressed: Color32::from_rgb(0x4C, 0x4C, 0x4C),
             selected: Color32::from_rgb(0x47, 0x47, 0x47),
-            accent: Color32::from_rgb(0xF2, 0x6B, 0x1D),
+            accent: brand_accent(true),
             accent_text: Color32::WHITE,
             contextual: Color32::from_rgb(0xF5, 0x8A, 0x4B),
             selection: Color32::from_rgb(0xAA, 0xAA, 0xAA),
@@ -263,6 +263,11 @@ pub fn font(size: f32) -> egui::FontId {
 
 pub fn to_color32(c: deckcraft_color::Rgba) -> Color32 {
     Color32::from_rgba_unmultiplied(c.r, c.g, c.b, c.a)
+}
+
+fn brand_accent(dark: bool) -> Color32 {
+    let c = deckcraft_model::bitpolito::accent(dark);
+    Color32::from_rgb(c.r, c.g, c.b)
 }
 
 #[cfg(test)]

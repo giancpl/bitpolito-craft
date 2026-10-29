@@ -1,3 +1,14 @@
+# BitPolito Craft
+
+A browser-first Deckcraft fork for editable BitPolito presentations.
+See [the maintenance guide](docs/bitpolito.md) for manual design exports, local setup,
+recovery, upstream updates, deployment and the planned ownership transfer.
+
+The initial layouts are a working bootstrap awaiting the original Figma exports.
+Official BitPolito logos and icons are included with their published CC0 license.
+
+---
+
 <p align="center">
   <a href="https://getartcraft.com/">
     <picture>

@@ -31,6 +31,10 @@ fn photo_album_button(app: &mut SlideApp, ui: &mut Ui) {
 
 pub(super) fn insert(app: &mut SlideApp, ui: &mut Ui) {
     group(ui, |ui| {
+        let response = big_button(ui, Icon::Picture, "BitPolito", app.session.active().is_some());
+        egui::Popup::menu(&response).show(|ui| crate::bitpolito::assets(app, ui));
+    });
+    group(ui, |ui| {
         let (main, arrow) = big_button_ex(ui, Icon::NewSlide, "New\nSlide", enabled(app, "slide.new"), true, false);
         if main.clicked() {
             run(app, "slide.new", json!({}));

@@ -30,6 +30,19 @@ pub fn start() {
         {
             create.instance_descriptor.backends = eframe::wgpu::Backends::GL;
         }
+        let mut session = Session::new();
+        let restored = crate::recovery::restore(&mut session).await;
+        let mut recovery = crate::recovery::Recovery::default();
+        if let Err(error) = &restored {
+            recovery.disabled = true;
+            recovery.error = Some(format!("Local recovery unavailable: {error}. Download your work to keep it."));
+        }
+        if !matches!(restored, Ok(true)) {
+            let template = deckcraft_engine::model::bitpolito::config().map(|c| c.default_template).unwrap_or_else(|_| "bitpolito-blank".into());
+            if let Err(e) = session.execute("file.new", &serde_json::json!({"template":template})) {
+                log::error!("BitPolito starter: {e}");
+            }
+        }
         let result = eframe::WebRunner::new()
             .start(
                 canvas,
@@ -40,19 +53,13 @@ pub fn start() {
                     }
                     deckcraft_ui_egui::install_ime_pass_hooks(&cc.egui_ctx);
                     let inbox: Inbox = Inbox::default();
-                    let mut app = SlideApp::new(Session::new(), services(inbox.clone(), cc.egui_ctx.clone()));
+                    let mut app = SlideApp::new(session, services(inbox.clone(), cc.egui_ctx.clone()));
                     let q = query();
-                    if !q.contains("blank") {
-                        if let Err(e) = deckcraft_engine::sample::open_sample(&mut app.session) {
-                            log::error!("sample deck: {e}");
-                        }
-                    } else if let Err(e) = app.run("file.new", serde_json::json!({})) {
-                        log::error!("new presentation: {e}");
-                    }
                     if q.contains("show") {
                         app.start_show(0, false);
                     }
-                    Ok(Box::new(WebShell { app, inbox }))
+                    crate::automation::ready();
+                    Ok(Box::new(WebShell { app, inbox, recovery }))
                 }),
             )
             .await;
@@ -74,12 +81,15 @@ fn query() -> String {
 struct WebShell {
     app: SlideApp,
     inbox: Inbox,
+    recovery: crate::recovery::Recovery,
 }
 
 impl eframe::App for WebShell {
     /// Delegate one eframe logic pass to the wrapped application.
     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        crate::automation::tick(&mut self.app);
         self.app.logic(ctx);
+        self.recovery.tick(&mut self.app, ctx);
     }
 
     /// Consume browser drops with fresh input, capture the identity before the asynchronous read,
@@ -111,6 +121,17 @@ impl eframe::App for WebShell {
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.app.ui(ui);
+        self.recovery.tick(&mut self.app, ui.ctx());
+        if let Some(error) = &self.recovery.error {
+            egui::Window::new("Keep your work safe")
+                .anchor(egui::Align2::RIGHT_BOTTOM, [-16.0, -48.0])
+                .default_width(320.0)
+                .collapsible(false)
+                .resizable(false)
+                .show(ui.ctx(), |ui| {
+                    ui.label(error);
+                });
+        }
     }
 }
 

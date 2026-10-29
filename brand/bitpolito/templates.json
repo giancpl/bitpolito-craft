@@ -1,0 +1,359 @@
+{
+  "schemaVersion": 1,
+  "layouts": [
+    {
+      "id": "cover",
+      "label": "Cover",
+      "background": "#001CE0",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            142,
+            840,
+            176
+          ],
+          "size": 58,
+          "bold": true,
+          "text": "Il titolo della presentazione",
+          "color": "#FFFFFF"
+        },
+        {
+          "role": "subtitle",
+          "rect": [
+            60,
+            330,
+            760,
+            82
+          ],
+          "size": 26,
+          "bold": false,
+          "text": "Nome · Evento · Data",
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "section",
+      "label": "Section divider",
+      "background": "#001CE0",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            180,
+            840,
+            150
+          ],
+          "size": 54,
+          "bold": true,
+          "text": "Una nuova prospettiva",
+          "color": "#FFFFFF"
+        },
+        {
+          "role": "subtitle",
+          "rect": [
+            60,
+            350,
+            780,
+            70
+          ],
+          "size": 24,
+          "bold": false,
+          "text": "Introduci la prossima sezione",
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "content",
+      "label": "Title and body",
+      "background": "#FFFFFF",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            58,
+            840,
+            100
+          ],
+          "size": 42,
+          "bold": true,
+          "text": "Un concetto alla volta",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            60,
+            180,
+            840,
+            278
+          ],
+          "size": 26,
+          "bold": false,
+          "text": "Aggiungi qui il contenuto della slide",
+          "color": "#10163A"
+        }
+      ]
+    },
+    {
+      "id": "columns",
+      "label": "Two columns",
+      "background": "#FFFFFF",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            58,
+            840,
+            100
+          ],
+          "size": 42,
+          "bold": true,
+          "text": "Confronta due idee",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            60,
+            180,
+            390,
+            275
+          ],
+          "size": 25,
+          "bold": false,
+          "text": "La prima idea",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            510,
+            180,
+            390,
+            275
+          ],
+          "size": 25,
+          "bold": false,
+          "text": "La seconda idea",
+          "color": "#10163A"
+        }
+      ]
+    },
+    {
+      "id": "image",
+      "label": "Image and caption",
+      "background": "#FFFFFF",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            50,
+            840,
+            90
+          ],
+          "size": 42,
+          "bold": true,
+          "text": "Mostra il contesto",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            60,
+            170,
+            500,
+            285
+          ],
+          "size": 24,
+          "bold": false,
+          "text": "Inserisci qui la tua immagine",
+          "color": "#10163A"
+        },
+        {
+          "role": "caption",
+          "rect": [
+            600,
+            190,
+            300,
+            240
+          ],
+          "size": 23,
+          "bold": false,
+          "text": "Spiega perché questa immagine è importante",
+          "color": "#10163A"
+        }
+      ]
+    },
+    {
+      "id": "diagram",
+      "label": "Diagram",
+      "background": "#FFFFFF",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            50,
+            840,
+            90
+          ],
+          "size": 42,
+          "bold": true,
+          "text": "Come funziona",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            60,
+            180,
+            240,
+            230
+          ],
+          "size": 25,
+          "bold": true,
+          "text": "1. Il punto di partenza",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            360,
+            180,
+            240,
+            230
+          ],
+          "size": 25,
+          "bold": true,
+          "text": "2. Il passaggio chiave",
+          "color": "#10163A"
+        },
+        {
+          "role": "body",
+          "rect": [
+            660,
+            180,
+            240,
+            230
+          ],
+          "size": 25,
+          "bold": true,
+          "text": "3. Il risultato",
+          "color": "#10163A"
+        }
+      ]
+    },
+    {
+      "id": "quote",
+      "label": "Quote or key message",
+      "background": "#001CE0",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            80,
+            150,
+            800,
+            220
+          ],
+          "size": 44,
+          "bold": true,
+          "text": "Una buona domanda vale più di una risposta veloce.",
+          "color": "#FFFFFF"
+        },
+        {
+          "role": "caption",
+          "rect": [
+            80,
+            400,
+            800,
+            50
+          ],
+          "size": 20,
+          "bold": false,
+          "text": "Una citazione o un messaggio da ricordare",
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "id": "closing",
+      "label": "Closing",
+      "background": "#001CE0",
+      "placeholders": [
+        {
+          "role": "title",
+          "rect": [
+            60,
+            175,
+            840,
+            130
+          ],
+          "size": 62,
+          "bold": true,
+          "text": "Grazie!",
+          "color": "#FFFFFF"
+        },
+        {
+          "role": "subtitle",
+          "rect": [
+            60,
+            330,
+            840,
+            95
+          ],
+          "size": 28,
+          "bold": false,
+          "text": "Domande?\nbitpolito.it",
+          "color": "#FFFFFF"
+        }
+      ]
+    }
+  ],
+  "starters": [
+    {
+      "id": "bitpolito-blank",
+      "name": "BitPolito Blank",
+      "summary": "Una slide iniziale e tutti i layout BitPolito",
+      "layouts": [
+        "cover"
+      ]
+    },
+    {
+      "id": "bitpolito-talk",
+      "name": "BitPolito Talk",
+      "summary": "Una presentazione chiara, dal contesto alle domande",
+      "layouts": [
+        "cover",
+        "section",
+        "content",
+        "columns",
+        "image",
+        "quote",
+        "closing"
+      ]
+    },
+    {
+      "id": "bitpolito-workshop",
+      "name": "BitPolito Workshop",
+      "summary": "Un percorso pratico con idee, diagrammi e confronto",
+      "layouts": [
+        "cover",
+        "content",
+        "section",
+        "diagram",
+        "columns",
+        "image",
+        "closing"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "assets": [
+    {
+      "id": "logo-blue",
+      "label": "BitPolito logo · blue",
+      "category": "Logos",
+      "file": "runtime/logo-blue.png"
+    },
+    {
+      "id": "logo-white",
+      "label": "BitPolito logo · white",
+      "category": "Logos",
+      "file": "runtime/logo-white.png"
+    },
+    {
+      "id": "bull",
+      "label": "BitPolito bull",
+      "category": "Icons",
+      "file": "runtime/bull.png"
+    }
+  ]
+}

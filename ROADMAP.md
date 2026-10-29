@@ -1,3 +1,5 @@
+> BitPolito fork · 2026-10-29: isolated brand package, eight editable layouts, three starters, asset gallery, browser recovery, and gated deployment/upstream workflows. Original Figma audit and automation credentials remain pending. See [maintenance](docs/bitpolito.md).
+
 # DeckCraft roadmap
 
 **Stage: alpha** · next: beta, ~20 points and ~120–210 h away

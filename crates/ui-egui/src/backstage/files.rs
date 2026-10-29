@@ -68,6 +68,7 @@ fn new_tiles(app: &mut SlideApp, ui: &mut Ui, query: &str, limit: usize, blank: 
 
 /// Starter decks whose name, summary, theme or a slide title matches `query`, at most `limit` tiles.
 fn template_tiles(app: &mut SlideApp, ui: &mut Ui, query: &str, limit: usize) -> bool {
+    crate::bitpolito::starters(app, ui, query);
     let list = deckcraft_engine::templates::matching(query);
     if list.is_empty() {
         return false;

@@ -1,0 +1,102 @@
+name: BitPolito validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bitpolito-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/.local/craft-fonts
+      CRAFT_FONTS_REQUIRED: '1'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.local/browsers
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: storytold/craft-fonts
+          ref: 37827adc41fd165f9a9234ac40f94dbad353aa69
+          path: .local/craft-fonts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.17.0'
+      - name: Cargo and browser build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/trunk
+            ~/.cache/trunk
+            target
+          key: bitpolito-${{ runner.os }}-rust1.97.1-trunk0.22.1-${{ hashFiles('Cargo.lock') }}
+      - name: Build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libxkbcommon-dev libwayland-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev
+          rustup toolchain install 1.97.1 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown
+          rustup override set 1.97.1
+          if ! command -v trunk >/dev/null || ! trunk --version | grep -q '0.22.1'; then cargo install trunk --version 0.22.1 --locked; fi
+      - name: Brand and importer checks
+        run: |
+          python3 scripts/bitpolito/brand.py check
+          python3 -m unittest discover -s tests/bitpolito -p 'test_*.py' -v
+      - name: Upstream quality gates and native regressions
+        run: cargo xtask ci
+      - name: Approved visual references
+        run: python3 scripts/bitpolito/visual-check.py
+      - name: Release browser build
+        run: |
+          git fetch --no-tags https://github.com/storytold/deckcraft.git main:refs/remotes/upstream/main
+          bash scripts/bitpolito/build-web.sh
+      - name: Browser regressions
+        run: |
+          npm ci --prefix tests/bitpolito/browser --ignore-scripts
+          node tests/bitpolito/browser/node_modules/@playwright/test/cli.js install --with-deps chromium firefox
+          python3 -m http.server 8768 --directory dist/web > .local/browser-server.log 2>&1 &
+          python3 - <<'PY'
+          import time, urllib.request
+          for attempt in range(30):
+              try:
+                  urllib.request.urlopen('http://127.0.0.1:8768', timeout=1).close()
+                  break
+              except OSError:
+                  time.sleep(1)
+          else:
+              raise SystemExit('Browser server did not start')
+          PY
+          node tests/bitpolito/browser/node_modules/@playwright/test/cli.js test --config tests/bitpolito/browser/playwright.config.js
+      - name: Design preview artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bitpolito-design-previews
+          path: .local/visual
+          if-no-files-found: ignore
+      - name: Preserve the validated release for deployment and rollback
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bitpolito-web-${{ github.sha }}
+          path: dist/web
+          retention-days: 90
+          if-no-files-found: error
+      - name: Browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: bitpolito-test-failures
+          path: |
+            tests/bitpolito/browser/test-results
+            test-results
+            .local/visual
+            .local/browser-server.log

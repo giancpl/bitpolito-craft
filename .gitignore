@@ -12,3 +12,13 @@ packaging/env.sh
 /packaging/linux/flatpak/cargo-sources.json
 /build-flatpak/
 /.flatpak-builder/
+
+# Checkout-local BitPolito tools, credentials and preview artifacts.
+/.local/
+/brand/bitpolito/.import-*/
+/playwright-report/
+test-results/
+node_modules/
+
+__pycache__/
+*.pyc

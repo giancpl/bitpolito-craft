@@ -91,3 +91,14 @@ in craft-fonts, including the LXGW Reserved Font Names and original Klee notice.
 | Family | Author | Source | Licence | Use |
 |---|---|---|---|---|
 | LXGW WenKai Lite Regular 1.530 | LXGW; original Klee Project Authors / Fontworks | https://github.com/lxgw/LxgwWenKai-Lite/tree/b712c83d98acf977bacfb7fb010207802808bda9 | OFL-1.1, unmodified upstream font | Native Chinese glyph fallback after existing UI faces; font SHA256 `f799a538a3355877e597a0ae04050e897932c9ae7689eb9227c2953c5dd549ea`, OFL SHA256 `0333a85fe077b6849f8e417acc44e8bd879442ceb681e271acf93e2d57fd4e2e` |
+
+## BitPolito brand package
+
+| `brand/bitpolito/runtime/bull.png` | BitPolito | [media-kit @ b7f60fce](https://github.com/BitPolito/media-kit/tree/b7f60fce51b59c1d175917222679f8638c7d7743) | CC0-1.0; `brand/bitpolito/LICENSE` | Brand assets |
+| `brand/bitpolito/runtime/logo-blue.png` | BitPolito | [media-kit @ b7f60fce](https://github.com/BitPolito/media-kit/tree/b7f60fce51b59c1d175917222679f8638c7d7743) | CC0-1.0; `brand/bitpolito/LICENSE` | Brand assets |
+| `brand/bitpolito/runtime/logo-white.png` | BitPolito | [media-kit @ b7f60fce](https://github.com/BitPolito/media-kit/tree/b7f60fce51b59c1d175917222679f8638c7d7743) | CC0-1.0; `brand/bitpolito/LICENSE` | Brand assets |
+| `brand/bitpolito/sources/bull.svg` | BitPolito | [media-kit @ b7f60fce](https://github.com/BitPolito/media-kit/tree/b7f60fce51b59c1d175917222679f8638c7d7743) | CC0-1.0; `brand/bitpolito/LICENSE` | Brand assets |
+| `brand/bitpolito/sources/cow.svg` | BitPolito | [media-kit @ b7f60fce](https://github.com/BitPolito/media-kit/tree/b7f60fce51b59c1d175917222679f8638c7d7743) | CC0-1.0; `brand/bitpolito/LICENSE` | Brand assets |
+| `brand/bitpolito/sources/logo-blue.svg` | BitPolito | [media-kit @ b7f60fce](https://github.com/BitPolito/media-kit/tree/b7f60fce51b59c1d175917222679f8638c7d7743) | CC0-1.0; `brand/bitpolito/LICENSE` | Brand assets |
+
+| `brand/bitpolito/templates.json` | BitPolito Craft contributors | Original bootstrap layouts; Figma audit pending | MIT OR Apache-2.0 | Editable native templates |

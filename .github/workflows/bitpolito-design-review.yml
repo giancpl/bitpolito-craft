@@ -1,0 +1,37 @@
+name: BitPolito design review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  design-review:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require approval for brand-package changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename' > files.txt
+          if ! grep -Eq '^(brand/bitpolito/|tests/bitpolito/visual.json)' files.txt; then exit 0; fi
+          gh api --paginate --slurp "repos/$REPO/pulls/$PR/reviews" > reviews.json
+          gh api "repos/$REPO/pulls/$PR" > pr.json
+          python3 - <<'PY'
+          import json, os, subprocess
+          pr=json.load(open('pr.json'));latest={}
+          for page in json.load(open('reviews.json')):
+              for review in page:
+                  if review['state'] in ('APPROVED','CHANGES_REQUESTED','DISMISSED'):
+                      latest[review['user']['login']]=review
+          approved=False
+          for login,r in latest.items():
+              if r['state']!='APPROVED' or r['commit_id']!=pr['head']['sha'] or login==pr['user']['login']:continue
+              result=subprocess.run(['gh','api',f"repos/{os.environ['REPO']}/collaborators/{login}/permission"],capture_output=True,text=True,check=True)
+              if json.loads(result.stdout)['permission'] in ('admin','maintain','write'):approved=True
+          if not approved:raise SystemExit('Brand changes require another maintainer to approve the current commit.')
+          PY

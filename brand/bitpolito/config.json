@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "title": "BitPolito Craft",
+  "brandVersion": "0.1.0",
+  "accent": "#001CE0",
+  "darkAccent": "#8090FF",
+  "font": "Inter",
+  "defaultTemplate": "bitpolito-blank",
+  "designStatus": "bootstrap — awaiting manual Figma exports",
+  "upstream": "storytold/deckcraft",
+  "upstreamBranch": "main",
+  "figmaFile": "QJ5ozI9rgKfKxTI6xoJkFa",
+  "audited": false
+}

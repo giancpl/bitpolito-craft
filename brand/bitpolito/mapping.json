@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "fileKey": "QJ5ozI9rgKfKxTI6xoJkFa",
+  "version": null,
+  "layouts": [],
+  "assets": [],
+  "instructions": "Map approved Figma node IDs after manual export audit. Empty mappings must fail API import, never replace the bootstrap package."
+}

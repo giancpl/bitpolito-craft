@@ -1,0 +1,32 @@
+name: BitPolito upstream sync
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bitpolito-upstream
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: vars.BITPOLITO_ENABLED == 'true' && vars.BITPOLITO_SYNC_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Repository-scoped updater identity
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        id: app
+        with:
+          app-id: ${{ secrets.UPDATER_APP_ID }}
+          private-key: ${{ secrets.UPDATER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          token: ${{ steps.app.outputs.token }}
+          fetch-depth: 0
+          ref: main
+      - name: Merge upstream through a protected PR
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: python3 scripts/bitpolito/sync-upstream.py

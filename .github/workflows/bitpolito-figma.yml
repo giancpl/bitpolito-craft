@@ -1,0 +1,56 @@
+name: Import Figma
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bitpolito-design-import
+  cancel-in-progress: false
+jobs:
+  import:
+    if: vars.BITPOLITO_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        id: app
+        with:
+          app-id: ${{ secrets.UPDATER_APP_ID }}
+          private-key: ${{ secrets.UPDATER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: main
+          token: ${{ steps.app.outputs.token }}
+      - name: Import only approved nodes at a recorded Figma version
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+        run: python3 scripts/bitpolito/import_figma.py
+      - name: Open a design PR for review
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          if git diff --quiet; then echo 'No design changes'; exit 0; fi
+          git config user.name 'BitPolito design importer'
+          git config user.email 'bitpolito-design@users.noreply.github.com'
+          if git ls-remote --exit-code --heads origin automation/figma-import >/dev/null; then
+            git fetch origin +refs/heads/automation/figma-import:refs/remotes/origin/automation/figma-import
+          fi
+          git switch -C automation/figma-import
+          git add brand/bitpolito apps/deckcraft-web/index.html
+          git commit -m 'BP2: import approved Figma design nodes'
+          git push --force-with-lease origin automation/figma-import
+          mkdir -p .local
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          provenance=json.loads(Path('brand/bitpolito/provenance.json').read_text())
+          Path('.local/design-pr.md').write_text('Updates the versioned BitPolito package from Figma version `'+str(provenance['figmaVersion'])+'`.\n\nReview the asset diff and download rendered previews from the BitPolito validation run. Visual references must be updated deliberately after inspection; this workflow never approves them.\n\n'+str(len(provenance['nodeIds']))+' approved source nodes imported.\n')
+          PY
+          pr_number=$(gh pr list --repo "$REPO" --head automation/figma-import --state open --json number --jq '.[0].number // empty')
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" --repo "$REPO" --body-file .local/design-pr.md
+          else
+            gh pr create --repo "$REPO" --base main --head automation/figma-import --title 'Update BitPolito designs' --body-file .local/design-pr.md
+          fi

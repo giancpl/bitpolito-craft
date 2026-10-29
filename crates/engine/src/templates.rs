@@ -275,7 +275,7 @@ mod tests {
             assert_eq!(st.selection.slide, 0);
         }
         let listed = s.execute("file.templates", &json!({})).unwrap();
-        assert_eq!(listed["templates"].as_array().map(Vec::len), Some(starters().len()));
+        assert_eq!(listed["templates"].as_array().map(Vec::len), Some(starters().len() + crate::bitpolito::starters().len()));
     }
 
     #[test]

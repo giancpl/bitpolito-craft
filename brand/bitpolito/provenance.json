@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "source": "https://github.com/BitPolito/media-kit",
+  "commit": "b7f60fce51b59c1d175917222679f8638c7d7743",
+  "license": "CC0-1.0",
+  "figmaVersion": null,
+  "designStatus": "bootstrap; pending manual Figma export audit",
+  "hashes": {
+    "sources/bull.svg": "cbdac8f181a98c71f92e756669b53df89762c01fdc26ba4aa56398955234def8",
+    "sources/cow.svg": "15110cb6c0580a7b39b226b97392d0d2384f6e9a960c488842e4902833a8abfc",
+    "sources/logo-blue.svg": "599db127c5e987a01d08875da3863cfde008dec0c029d96cd5af1143939b098b",
+    "runtime/bull.png": "a54049869dee5b6a71d9043a4973e91fa0606cb627d61aa2170ef79280e87a9b",
+    "runtime/logo-blue.png": "62276b3cdc27e9d7e4d8dfa08c56f732a428fe1a8e0e065ae0824fc43f499b51",
+    "runtime/logo-white.png": "9567e480a3ebae525c289a7b44e872d03a9edc7c87d65aa1ee267429effe1e83"
+  }
+}
