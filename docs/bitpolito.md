@@ -90,6 +90,11 @@ bash scripts/bitpolito/build-web.sh
 Serve `dist/web` over localhost or HTTPS. Install the pinned browser tests with
 `npm ci --prefix tests/bitpolito/browser`, install Playwright Chromium/Firefox, and
 run `node tests/bitpolito/browser/node_modules/@playwright/test/cli.js test --config tests/bitpolito/browser/playwright.config.js`.
+CI runs headed browsers under `xvfb-run` so Firefox can create its WebGL2 context
+on Ubuntu; see [Playwright's CI guidance](https://playwright.dev/docs/ci#running-headed).
+Tests stop on the first failure and retain screenshots/traces. Compiled inputs
+are cached before browser validation, while deployment still requires every check.
+
 The browser tests opt into `?automation`, which exposes `window.bitpolito.execute`
 for same-origin testing. Ordinary sessions do not expose this command bridge.
 

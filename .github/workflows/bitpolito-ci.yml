@@ -30,7 +30,8 @@ jobs:
         with:
           node-version: '22.17.0'
       - name: Cargo and browser build cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        id: build-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: |
             ~/.cargo/registry
@@ -45,7 +46,12 @@ jobs:
           sudo apt-get install -y libasound2-dev libxkbcommon-dev libwayland-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev
           rustup toolchain install 1.97.1 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown
           rustup override set 1.97.1
-          if ! command -v trunk >/dev/null || ! trunk --version | grep -q '0.22.1'; then cargo install trunk --version 0.22.1 --locked; fi
+          if ! command -v trunk >/dev/null || ! trunk --version | grep -Fxq 'trunk 0.22.1'; then
+            curl --fail --location --retry 3 --output "$RUNNER_TEMP/bitpolito-trunk.tar.gz" https://github.com/trunk-rs/trunk/releases/download/v0.22.1/trunk-x86_64-unknown-linux-gnu.tar.gz
+            echo "2ab8d548fd5ed9cda50906f61fd8654204e7893bd52ebbfd90533862b7d71ee1  $RUNNER_TEMP/bitpolito-trunk.tar.gz" | sha256sum --check
+            mkdir -p "$HOME/.cargo/bin"
+            tar -xzf "$RUNNER_TEMP/bitpolito-trunk.tar.gz" -C "$HOME/.cargo/bin" trunk
+          fi
       - name: Brand and importer checks
         run: |
           python3 scripts/bitpolito/brand.py check
@@ -58,6 +64,17 @@ jobs:
         run: |
           git fetch --no-tags https://github.com/storytold/deckcraft.git main:refs/remotes/upstream/main
           bash scripts/bitpolito/build-web.sh
+      - name: Preserve compiled build inputs before browser validation
+        if: steps.build-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/trunk
+            ~/.cache/trunk
+            target
+          key: bitpolito-${{ runner.os }}-rust1.97.1-trunk0.22.1-${{ hashFiles('Cargo.lock') }}
       - name: Browser regressions
         run: |
           npm ci --prefix tests/bitpolito/browser --ignore-scripts
@@ -74,7 +91,7 @@ jobs:
           else:
               raise SystemExit('Browser server did not start')
           PY
-          node tests/bitpolito/browser/node_modules/@playwright/test/cli.js test --config tests/bitpolito/browser/playwright.config.js
+          xvfb-run --auto-servernum node tests/bitpolito/browser/node_modules/@playwright/test/cli.js test --headed --config tests/bitpolito/browser/playwright.config.js 2>&1 | tee .local/browser-console.log
       - name: Design preview artifacts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -100,3 +117,4 @@ jobs:
             test-results
             .local/visual
             .local/browser-server.log
+            .local/browser-console.log

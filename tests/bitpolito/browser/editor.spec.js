@@ -1,6 +1,10 @@
 const {test,expect}=require('@playwright/test');
 const command=(page,id,params={})=>page.evaluate(([id,params])=>window.bitpolito.execute(id,params),[id,params]);
-async function open(page){await page.goto('/?webgl&automation');await page.waitForFunction(()=>Boolean(window.bitpolito));}
+async function open(page){
+ await page.goto('/?webgl&automation');
+ await page.waitForFunction(()=>Boolean(window.bitpolito)||document.getElementById('deckcraft_loading')?.textContent.includes('failed'));
+ if(!await page.evaluate(()=>Boolean(window.bitpolito)))throw new Error(await page.locator('#deckcraft_loading').textContent());
+}
 async function draftCount(page){return page.evaluate(()=>new Promise((resolve,reject)=>{const r=indexedDB.open('bitpolito-craft-recovery',1);r.onsuccess=()=>{const db=r.result;const q=db.transaction('sessions').objectStore('sessions').getAll();q.onsuccess=()=>{db.close();resolve(q.result.map(x=>JSON.parse(x.snapshot)));};q.onerror=()=>reject(q.error);};}));}
 test('brand starter, editable layouts, assets, undo, native and PDF/PPTX export',async({page})=>{
  await open(page);await expect(page).toHaveTitle('BitPolito Craft');
